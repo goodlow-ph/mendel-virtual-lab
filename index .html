@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>멘델 유전 탐정</title>
+<style>
+body{font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif;margin:0;background:#f4f7fb;color:#243044}
+header{background:#355070;color:#fff;padding:26px 20px}
+header h1{margin:0 0 8px;font-size:30px}.sub{margin:0;opacity:.92}
+main{max-width:1100px;margin:22px auto;padding:0 16px 50px}
+.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 5px 20px #0001}
+.badge{display:inline-block;background:#e8eef8;color:#355070;padding:5px 10px;border-radius:999px;font-weight:800;font-size:13px}
+.note{background:#fff7d8;border-left:5px solid #d8b03c;padding:13px 15px;border-radius:8px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+select,button{font:inherit;padding:10px 13px;border-radius:10px;border:1px solid #c9d3e1}
+button{background:#355070;color:#fff;border:0;cursor:pointer;font-weight:750;margin:3px}
+button.secondary{background:#e8edf4;color:#355070}
+button.correct{background:#dff1df!important;color:#245b24!important;border:1px solid #70ad70!important}
+button.wrong{background:#ffe2e2!important;color:#772020!important;border:1px solid #d27c7c!important}
+.result{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.big{font-size:34px;font-weight:850}.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef3f8;margin:3px;font-weight:750}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:760px}
+.cell{background:#eef3f8;padding:9px;text-align:center;border-radius:7px;font-weight:750}.head{background:#dce6f2}
+.small{font-size:14px;color:#647188}
+.bar{height:23px;background:#edf0f4;border-radius:12px;overflow:hidden;margin:7px 0 14px}.fill{height:100%}
+.a{background:#7189c1}.b{background:#78a36d}.c{background:#cda35c}.d{background:#c47d7d}
+.mission{border:2px solid #e1e7f0;border-radius:14px;padding:16px;margin:14px 0}
+.peas{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.pea{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:800}
+table{border-collapse:collapse;width:100%;max-width:820px}th,td{border:1px solid #d9e0eb;padding:10px;text-align:center}th{background:#eef3f8}
+@media(max-width:760px){.controls,.result{grid-template-columns:1fr}.grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h1>🌱 멘델 유전 탐정</h1>
+<p class="sub">분리의 법칙 → 독립의 법칙 → 부모 유전자형 추리</p>
+</header>
+<main>
+
+<section class="card">
+<span class="badge">미션 1</span>
+<h2>🔎 대립유전자는 왜 갈라질까?</h2>
+<div class="note">
+T = 키 큼(우성), t = 키 작음(열성).<br>
+Tt인 부모가 생식세포를 만들 때 T와 t가 서로 분리되어 들어간다는 것을 확인해 보세요.
+</div>
+<br>
+<div class="controls">
+<div><b>부모 A</b><br><select id="s1a">
+<option value="TT">TT — 키 큼</option><option value="Tt" selected>Tt — 키 큼</option><option value="tt">tt — 키 작음</option>
+</select></div>
+<div><b>부모 B</b><br><select id="s1b">
+<option value="TT">TT — 키 큼</option><option value="Tt" selected>Tt — 키 큼</option><option value="tt">tt — 키 작음</option>
+</select></div>
+</div><br>
+<button onclick="singleCross()">교배하기</button>
+<div id="singleOut"></div>
+<div class="mission"><h3>발견 질문</h3><div id="q1"></div></div>
+</section>
+
+<section class="card">
+<span class="badge">미션 2</span>
+<h2>🫘 두 형질은 어떻게 함께 유전될까?</h2>
+<div class="note">
+R = 둥근 씨앗, r = 주름진 씨앗<br>
+Y = 노란 씨앗, y = 초록 씨앗<br>
+이 실험에서는 R/r과 Y/y가 서로 독립적으로 유전된다고 가정합니다.
+</div>
+<br>
+<div class="controls">
+<div><b>부모 A</b><br><select id="dihA">
+<option value="RrYy" selected>RrYy — 두 형질 모두 잡종</option>
+<option value="RRYy">RRYy</option><option value="RrYY">RrYY</option><option value="Rryy">Rryy</option><option value="rrYy">rrYy</option>
+</select></div>
+<div><b>부모 B</b><br><select id="dihB">
+<option value="RrYy" selected>RrYy — 두 형질 모두 잡종</option>
+<option value="RRYy">RRYy</option><option value="RrYY">RrYY</option><option value="Rryy">Rryy</option><option value="rrYy">rrYy</option>
+</select></div>
+</div><br>
+<button onclick="dihybridCross()">두 형질 교배하기</button>
+<div id="dihOut"></div>
+<div class="mission">
+<h3>📊 자손을 직접 뽑아 보세요</h3>
+<button onclick="simulateDih(100)">100마리</button>
+<button class="secondary" onclick="simulateDih(1000)">1000마리</button>
+<div id="dihSim"></div>
+</div>
+<div class="mission"><h3>발견 질문</h3><div id="q2"></div></div>
+</section>
+
+<section class="card">
+<span class="badge">최종 미션 3</span>
+<h2>🕵️ 부모의 유전자형을 추리하라!</h2>
+
+<div class="mission">
+<h3>사건 1</h3>
+<p>키가 큰 부모 둘을 교배했더니 자손에서 <b>tt(키 작음)</b>가 나타났습니다.</p>
+<button onclick="caseAnswer(1,0,this)">TT × TT</button>
+<button onclick="caseAnswer(1,1,this)">TT × Tt</button>
+<button onclick="caseAnswer(1,2,this)">Tt × Tt</button>
+<button onclick="caseAnswer(1,3,this)">TT × tt</button>
+<div id="case1" class="small"></div>
+</div>
+
+<div class="mission">
+<h3>사건 2</h3>
+<p>둥글고 노란색인 부모끼리 교배했더니 자손에서 <b>rryy(주름지고 초록색)</b>가 나타났습니다.</p>
+<button onclick="caseAnswer(2,0,this)">RrYy × RrYy</button>
+<button onclick="caseAnswer(2,1,this)">RRYy × RrYy</button>
+<button onclick="caseAnswer(2,2,this)">RrYY × RrYy</button>
+<button onclick="caseAnswer(2,3,this)">RRYY × rrYY</button>
+<div id="case2" class="small"></div>
+</div>
+
+<div class="mission"><h3>최종 비교</h3><div id="q3"></div></div>
+</section>
+
+<section class="card">
+<h2>🎯 최종 정리</h2>
+<table>
+<tr><th>법칙</th><th>핵심 내용</th></tr>
+<tr><td>분리의 법칙</td><td>한 쌍의 대립유전자가 생식세포 형성 과정에서 서로 분리되어 각각의 생식세포에 하나씩 들어감</td></tr>
+<tr><td>독립의 법칙</td><td>서로 다른 형질을 결정하는 유전자 쌍이 독립적으로 분리·조합됨(이 활동의 가정)</td></tr>
+</table>
+</section>
+
+</main>
+<script>
+let D=null;
+
+function uniq(a){return [...new Set(a)]}
+function gametes(g){
+  const A=uniq([g[0],g[1]]), B=uniq([g[2],g[3]]);
+  const r=[]; for(const x of A)for(const y of B)r.push(x+y); return r;
+}
+function pair(a,b,dom){
+  return [a,b].sort((x,y)=>(x===dom?0:1)-(y===dom?0:1)).join("");
+}
+function childS(a,b){return pair(a[0],b[0],"T")}
+function phS(g){return g.includes("T")?"키 큼":"키 작음"}
+
+function singleCross(){
+  const a=document.getElementById("s1a").value,b=document.getElementById("s1b").value;
+  const ga=uniq([a[0],a[1]]),gb=uniq([b[0],b[1]]);
+  let c={TT:0,Tt:0,tt:0};
+  ga.forEach(x=>gb.forEach(y=>c[childS(x,y)]++));
+  document.getElementById("singleOut").innerHTML=
+    `<div class="result" style="margin-top:15px">
+      <div><b>부모 A 생식세포</b><br>${ga.map(x=>`<span class="pill">${x}</span>`).join("")}</div>
+      <div><b>부모 B 생식세포</b><br>${gb.map(x=>`<span class="pill">${x}</span>`).join("")}</div>
+    </div>
+    <div class="mission"><b>유전자형 결과</b><p>TT: ${c.TT} / Tt: ${c.Tt} / tt: ${c.tt}</p>
+    <b>표현형 결과</b><p>키 큼 : 키 작음 = ${c.TT+c.Tt} : ${c.tt}</p></div>`;
+  document.getElementById("q1").innerHTML=
+    `<p><b>Q.</b> Tt인 부모가 생식세포를 만들 때 한 생식세포에 들어가는 것은?</p>
+     <button onclick="q1ans(0,this)">T와 t가 함께 들어간다</button>
+     <button onclick="q1ans(1,this)">T 또는 t 중 하나가 들어간다</button>
+     <button onclick="q1ans(2,this)">TT가 들어간다</button>
+     <div id="q1e" class="small"></div>`;
+}
+function q1ans(i,b){
+  const bs=b.parentElement.querySelectorAll("button");bs.forEach(x=>x.disabled=true);
+  if(i===1){b.classList.add("correct")}else{b.classList.add("wrong");bs[1].classList.add("correct")}
+  document.getElementById("q1e").textContent=i===1?"정답! 이것이 분리의 법칙의 핵심입니다.":"다시 생각해 보세요. 생식세포에는 대립유전자 하나가 들어갑니다.";
+}
+
+function childD(a,b){return pair(a[0],b[0],"R")+pair(a[1],b[1],"Y")}
+function phD(g){
+  const r=g.slice(0,2).includes("R"),y=g.slice(2).includes("Y");
+  return r?(y?"둥글고 노란색":"둥글고 초록색"):(y?"주름지고 노란색":"주름지고 초록색");
+}
+function dihybridCross(){
+  const a=document.getElementById("dihA").value,b=document.getElementById("dihB").value;
+  const ga=gametes(a),gb=gametes(b); D={a,b,ga,gb};
+  let s='<div class="grid" style="margin-top:15px"><div class="cell head">A×B</div>';
+  gb.forEach(x=>s+=`<div class="cell head">${x}</div>`);
+  ga.forEach(x=>{s+=`<div class="cell head">${x}</div>`;gb.forEach(y=>{const g=childD(x,y);s+=`<div class="cell">${g}<br><span class="small">${phD(g)}</span></div>`})});
+  s+='</div>';
+  document.getElementById("dihOut").innerHTML=
+    `<div class="result" style="margin-top:15px">
+      <div><b>부모 A 생식세포</b><br>${ga.map(x=>`<span class="pill">${x}</span>`).join("")}</div>
+      <div><b>부모 B 생식세포</b><br>${gb.map(x=>`<span class="pill">${x}</span>`).join("")}</div>
+    </div>${s}
+    <div class="note" style="margin-top:15px"><b>RrYy × RrYy의 이론적 표현형 비율:</b> 9 : 3 : 3 : 1</div>`;
+  document.getElementById("q2").innerHTML=
+    `<p><b>Q.</b> RrYy × RrYy에서 네 가지 표현형의 이론적 비율은?</p>
+     <button onclick="q2ans(0,this)">3 : 1</button>
+     <button onclick="q2ans(1,this)">9 : 3 : 3 : 1</button>
+     <button onclick="q2ans(2,this)">1 : 1 : 1 : 1</button>
+     <div id="q2e" class="small"></div>`;
+}
+function q2ans(i,b){
+  const bs=b.parentElement.querySelectorAll("button");bs.forEach(x=>x.disabled=true);
+  if(i===1){b.classList.add("correct")}else{b.classList.add("wrong");bs[1].classList.add("correct")}
+  document.getElementById("q2e").textContent=i===1?"정답! 두 형질이 독립적으로 조합되면 9:3:3:1이 나타납니다.":"힌트: 두 형질을 한꺼번에 고려해 보세요.";
+}
+function simulateDih(n){
+  if(!D)dihybridCross();
+  const names=["둥글고 노란색","둥글고 초록색","주름지고 노란색","주름지고 초록색"];
+  const counts=Object.fromEntries(names.map(x=>[x,0]));
+  for(let i=0;i<n;i++){
+    const g=childD(D.ga[Math.floor(Math.random()*D.ga.length)],D.gb[Math.floor(Math.random()*D.gb.length)]);
+    counts[phD(g)]++;
+  }
+  const theory=[56.25,18.75,18.75,6.25];
+  const rows=names.map((k,i)=>{
+    const p=counts[k]/n*100;
+    return `<div><b>${k}</b> — ${counts[k]}마리 (${p.toFixed(1)}%)<div class="bar"><div class="fill ${["a","b","c","d"][i]}" style="width:${p}%"></div></div><span class="small">이론값 ${theory[i]}%</span></div>`;
+  }).join("");
+  document.getElementById("dihSim").innerHTML=
+    `<div class="result"><div><h3>실험 결과</h3>${rows}</div>
+    <div><h3>이론값</h3><div class="big">9 : 3 : 3 : 1</div>
+    <p class="small">실제 무작위 결과는 이론값과 조금 다를 수 있습니다.</p>
+    <div class="note"><b>탐정 질문:</b> 100마리보다 1000마리에서 이론값에 더 가까워지는 경향이 보이나요?</div></div></div>`;
+}
+
+function caseAnswer(no,i,b){
+  const bs=b.parentElement.querySelectorAll("button");bs.forEach(x=>x.disabled=true);
+  const correct=no===1?2:0;
+  if(i===correct)b.classList.add("correct");else{b.classList.add("wrong");bs[correct].classList.add("correct")}
+  document.getElementById("case"+no).textContent = i===correct
+    ? (no===1?"정답! tt가 나오려면 두 부모 모두 t를 줄 수 있어야 하므로 Tt × Tt가 가능합니다."
+             :"정답! rryy가 나오려면 두 부모 모두 r과 y를 각각 줄 수 있어야 하므로 RrYy × RrYy가 가능한 조합입니다.")
+    : "다시 생각해 보세요. 열성 유전자형은 양쪽 부모에게서 열성 대립유전자를 받아야 합니다.";
+  if(no===2) setFinal();
+}
+function setFinal(){
+ document.getElementById("q3").innerHTML=
+ `<p><b>Q.</b> 분리의 법칙과 독립의 법칙의 차이를 가장 잘 설명한 것은?</p>
+ <button onclick="q3ans(0,this)">분리 = 한 쌍의 대립유전자가 갈라짐 / 독립 = 서로 다른 형질의 유전이 독립적으로 조합됨</button>
+ <button onclick="q3ans(1,this)">두 법칙은 같은 뜻이다</button>
+ <button onclick="q3ans(2,this)">독립 = 우성 형질만 나타나는 현상이다</button>
+ <div id="q3e" class="small"></div>`;
+}
+function q3ans(i,b){
+ const bs=b.parentElement.querySelectorAll("button");bs.forEach(x=>x.disabled=true);
+ if(i===0){b.classList.add("correct")}else{b.classList.add("wrong");bs[0].classList.add("correct")}
+ document.getElementById("q3e").textContent=i===0?"정답! 두 법칙의 핵심을 구분했습니다.":"두 법칙이 설명하는 대상이 다릅니다.";
+}
+singleCross();dihybridCross();setFinal();
+</script>
+</body>
+</html>
